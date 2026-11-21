@@ -43,3 +43,25 @@ def test_toy_game_moves_the_generator_towards_the_real_numbers():
                                  snapshot_steps=(0, 1500), fixed_noise=noise, learning_rate=1e-3)
     before, after = abs(snapshots[0].mean() - gan.TOY_MEAN), abs(snapshots[1500].mean() - gan.TOY_MEAN)
     assert after < before and after < 1.0
+
+
+def test_ring_data_and_mode_counting():
+    real = gan.ring_data(n=4000)
+    modes, good = gan.modes_covered(real)
+    assert modes == 8 and good > 0.99
+    only_one_cloud = gan.ring_centres()[0] + 0.05 * np.random.default_rng(0).standard_normal((4000, 2))
+    assert gan.modes_covered(only_one_cloud.astype("float32"))[0] == 1
+
+
+def test_classifier_statistics_and_smoothing():
+    classifier = gan.build_classifier()
+    confidence, counts = gan.class_statistics(classifier, np.zeros((20, 28, 28, 1), dtype="float32"))
+    assert 0.0 < confidence <= 1.0 and counts.sum() == 20 and len(counts) == 10
+    assert list(gan.smooth([1, 2, 3, 4], window=2)) == [1.5, 2.5, 3.5]
+
+
+def test_ring_game_trains():
+    gan.set_seed()
+    generator, discriminator = gan.build_ring_generator(), gan.build_ring_discriminator()
+    history, _ = gan.train_gan(generator, discriminator, gan.ring_data(n=2000), steps=20, batch_size=64)
+    assert len(history["g_loss"]) == 20 and np.isfinite(history["g_loss"]).all()
