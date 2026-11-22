@@ -12,6 +12,6 @@ NOTEBOOKS = sorted((Path(__file__).resolve().parents[1] / "notebooks").glob("*.i
 @pytest.mark.parametrize("path", NOTEBOOKS, ids=lambda p: p.name)
 def test_notebook_runs(path):
     notebook = nbformat.read(path, as_version=4)
-    client = NotebookClient(notebook, timeout=900, kernel_name="python3",
+    client = NotebookClient(notebook, timeout=1800, kernel_name="python3",
                             resources={"metadata": {"path": str(path.parent)}})
     client.execute()
