@@ -1,4 +1,8 @@
-"""Helpers shared by the notebooks: data, the two networks, the training loop and figures."""
+"""Helpers shared by the notebooks: data, the two networks, the training loop and figures.
+
+Import this module *before* TensorFlow or Keras: it sets two environment variables (quiet logging and no oneDNN rounding
+differences) that only work if TensorFlow has not been loaded yet. Otherwise runs are not exactly reproducible.
+"""
 
 import os
 from pathlib import Path
